@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"github.com/ojiry/goth/internal/server"
+	"log"
+)
 
 func main() {
-	fmt.Println("Hello goth")
+	s := server.NewServer()
+	log.Fatal(s.ListenAndServe())
 }

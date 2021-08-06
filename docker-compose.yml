@@ -5,3 +5,5 @@ services:
     build:
       context: .
     container_name: goth
+    ports:
+      - 8080:8080
