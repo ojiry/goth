@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  goth:
+    build:
+      context: .
+    container_name: goth
