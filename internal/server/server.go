@@ -54,7 +54,7 @@ func (authorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type authenticateHandler struct{}
 
 func (authenticateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Success!")
+	http.Redirect(w, r, "/ping", http.StatusFound)
 }
 
 func NewServer() *http.Server {
