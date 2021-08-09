@@ -7,3 +7,25 @@ services:
     container_name: goth
     ports:
       - 8080:8080
+    depends_on: ["postgres"]
+    networks:
+      - overlay
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ojiry
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - overlay
+
+volumes:
+  pgdata:
+
+networks:
+  overlay:
