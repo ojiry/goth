@@ -1,6 +1,6 @@
 package service
 
-import(
+import (
 	"errors"
 )
 
@@ -31,7 +31,7 @@ func NewAuthorizeService(ar AuthorizeRequest) *AuthorizeService {
 
 func (s *AuthorizeService) Validate() error {
 	if s.authorizeRequest.Scope == "" {
-		return errors.New("scope parameter is required")
+		return errors.New("A scope parameter is required")
 	}
 	return nil
 }

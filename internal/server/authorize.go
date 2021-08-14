@@ -2,8 +2,10 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/ojiry/goth/internal/service"
 )
@@ -58,22 +60,25 @@ func (authorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
+		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	as := service.NewAuthorizeService(service.AuthorizeRequest{
-		Scope: r.Form.Get("scope"),
-		ResponseType: "hoge",
-		ClientID: "hoge",
-		RedirectUri: "hoge",
-	})
+	var ar service.AuthorizeRequest
+	if err := mapFormToAuthorizeRequest(r.Form, &ar); err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	as := service.NewAuthorizeService(ar)
 
 	if err := as.Validate(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		ed := err.Error()
-                resp := authorizeErrorResponse{
-			Error: "invalid_request",
+		resp := authorizeErrorResponse{
+			Error:            "invalid_request",
 			ErrorDescription: &ed,
 		}
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -89,4 +94,14 @@ func (authorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := t.Execute(w, nil); err != nil {
 		panic(err)
 	}
+}
+
+func mapFormToAuthorizeRequest(f url.Values, ar *service.AuthorizeRequest) error {
+	ar.Scope = f.Get("scope")
+	ar.ResponseType = f.Get("response_type")
+	ar.ClientID = f.Get("client_id")
+	ar.RedirectUri = f.Get("redirect_uri")
+	state := f.Get("state")
+	ar.State = &state
+	return nil
 }
