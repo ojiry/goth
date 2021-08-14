@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+
+	"github.com/ojiry/goth/internal/service"
 )
 
 type authorizeHandler struct{}
@@ -60,9 +62,23 @@ func (authorizeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sp := r.Form.Get("scope")
-	if sp == "" {
+	as := service.NewAuthorizeService(service.AuthorizeRequest{
+		Scope: r.Form.Get("scope"),
+		ResponseType: "hoge",
+		ClientID: "hoge",
+		RedirectUri: "hoge",
+	})
+
+	if err := as.Validate(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		ed := err.Error()
+                resp := authorizeErrorResponse{
+			Error: "invalid_request",
+			ErrorDescription: &ed,
+		}
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
